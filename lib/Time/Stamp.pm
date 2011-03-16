@@ -99,15 +99,18 @@ but still create it as easily as possible.
 =head1 SEE ALSO
 
 =for :list
-* L<perlport/Time and Date>
-* L<perlfunc/localtime>
-* L<Timestamp::Simple>
-* L<Time::Piece>
-* L<DateTime::Tiny>
-* L<DateTime>
-* L<Time::localtime>
-* L<Time::gmtime>
-* L<POSIX>
+* L<perlport/Time and Date> - discussion on using portable, readable timestamps
+* L<perlfunc/localtime> - built-in function
+* L<perlfunc/gmtime> - built-in function
+* L<Timestamp::Simple> - small, less efficient, non-customizable stamp
+* L<Time::Piece> - object-oriented module for working with times
+* L<DateTime::Tiny> - object-oriented module "with as little code as possible"
+* L<DateTime> - large, powerful object-oriented system
+* L<Time::localtime> - small object-oriented/named interface to C<localtime()>
+* L<Time::gmtime> - small object-oriented/named interface to C<gmtime()>
+* L<POSIX> - large module contained standard methods including C<strftime()>
+* L<http://www.w3.org/TR/NOTE-datetime> - C<W3CDTF> profile of C<ISO 8601>
+* L<http://www.cl.cam.ac.uk/~mgk25/iso-time.html> - summary of C<ISO 8601>
 
 =head1 TODO
 
