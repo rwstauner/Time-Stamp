@@ -109,8 +109,9 @@ but still create it as easily as possible.
 * L<Time::localtime> - small object-oriented/named interface to C<localtime()>
 * L<Time::gmtime> - small object-oriented/named interface to C<gmtime()>
 * L<POSIX> - large module contained standard methods including C<strftime()>
-* L<http://www.w3.org/TR/NOTE-datetime> - C<W3CDTF> profile of C<ISO 8601>
 * L<http://www.cl.cam.ac.uk/~mgk25/iso-time.html> - summary of C<ISO 8601>
+* L<http://www.w3.org/TR/NOTE-datetime> - C<W3CDTF> profile of C<ISO 8601>
+* L<http://www.ietf.org/rfc/rfc3339.txt> - C<RFC3339> profile of C<ISO 8601>
 
 =head1 TODO
 
