@@ -117,9 +117,10 @@ but still create it as easily as possible.
 =begin :list
 
 * Figure out a solution for including the timezone.
-For C<gmtime()> there is none (which is easy),
-but I don't know a good, efficient way to determine the timezone code or offset
-for use with C<localtime()>.  How does C<localtime()> determine the offset?
+For C<gmtime()> there is none (which is easy).
+C<< POSIX::strftime("%z", localtime) >> is not the most efficient way
+to determine the offset, but it is in the core
+(compared to L<Time::Zone> and L<Time::Timezone>).
 
 * Allow an option for overwriting the globals
 so that calling C<localtime> in scalar context will return
