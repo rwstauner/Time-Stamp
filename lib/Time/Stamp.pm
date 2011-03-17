@@ -1,3 +1,4 @@
+# vim: set sw=2 sts=2 ts=2 expandtab smarttab:
 package Time::Stamp;
 # ABSTRACT: Easy, readable, efficient timestamp functions
 
@@ -49,16 +50,16 @@ my $formats = do {
 
 sub _build_localstamp {
   my $format = _format($_[2]);
-	return sub {
-		sprintf($format, _ymdhms(CORE::localtime()));
-	};
+  return sub {
+    sprintf($format, _ymdhms(@_ > 1 ? @_ : CORE::localtime(@_ ? $_[0] : time)));
+  };
 }
 
 sub _build_gmstamp {
   my $format = _format({format => 'utc', %{$_[2]}});
-	return sub {
-		sprintf($format, _ymdhms(CORE::gmtime()));
-	};
+  return sub {
+    sprintf($format, _ymdhms(@_ > 1 ? @_ : CORE::gmtime(   @_ ? $_[0] : time)));
+  };
 }
 
 sub _format {
@@ -79,7 +80,7 @@ sub _format {
 }
 
 sub _ymdhms {
-	return ($_[5] + 1900, $_[4] + 1, @_[3, 2, 1, 0]);
+  return ($_[5] + 1900, $_[4] + 1, @_[3, 2, 1, 0]);
 }
 
 # define default localstamp and gmstamp in this package
