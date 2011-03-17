@@ -100,7 +100,7 @@ __PACKAGE__->import(qw(localstamp gmstamp));
 
 1;
 
-=for stopwords TODO timestamp
+=for stopwords TODO timestamp gmstamp localstamp UTC
 
 =head1 SYNOPSIS
 
@@ -213,7 +213,7 @@ If, despite the recommendations, you want to use the local time zone code:
   use Time::Stamp localtime => { tz => POSIX::strftime('%Z', localtime) };
 
 These options are not included in this module since they are not recommended
-and introduce unnecessary overhead (loading the afore mentioned modules).
+and introduce unnecessary overhead (loading the aforementioned modules).
 
 =head1 EXPORTS
 
