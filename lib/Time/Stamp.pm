@@ -126,9 +126,13 @@ interpreter and copy and paste the timestamp into L<localtime()|perlfunc/time>
 to figure out when that actually was.
 
 You can pass the timestamp to C<scalar localtime($sec)>
-but that doesn't sort well or parse easily
-and contains characters that aren't friendly for things like file names.
-(See L<perlport/Time and Date> for more discussion on useful timestamps).
+(or C<scalar gmtime($sec)>)
+but that doesn't sort well or parse easily,
+isn't internationally friendly,
+and contains characters that aren't friendly for file names or URIs
+(or other places you may want to use it).
+
+See L<perlport/Time and Date> for more discussion on useful timestamps.
 
 For simple timestamps you can get the data you need from
 L<perlfunc/localtime> and L<perlfunc/gmtime>
