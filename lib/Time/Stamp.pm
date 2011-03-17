@@ -5,38 +5,71 @@ use strict;
 use warnings;
 
 use Sub::Exporter 0.982 -setup => {
-	exports => [
-		localstamp => \'_build_localstamp',
-		gmstamp    => \'_build_gmstamp',
-	],
-	groups => [
-		stamps => [qw(localstamp gmstamp)],
-	]
+  exports => [
+    localstamp => \'_build_localstamp',
+    gmstamp    => \'_build_gmstamp',
+  ],
+  groups => [
+    stamps => [qw(localstamp gmstamp)],
+  ]
 };
 
-our %Formats = (
-	common     => '%04d-%02d-%02dT%02d:%02d:%02d',
-	easy       => '%04d-%02d-%02d %02d:%02d:%02d',
-	condensed  => '%04d%02d%02d_%02d%02d%02d',
-	numeric    => '%04d%02d%02d%02d%02d%02d',
-);
+# set up named formats with default values
+my $formats = do {
+  my %default = (
+    date_sep => '-',
+    dt_sep   => 'T', # ISO 8601
+    time_sep => ':',
+    tz_sep   => '',
+    tz       => '',
+  );
+  my %blank = map { $_ => '' } keys %default;
+  my $n = {
+    default  => {%default},
+    utc      => {%default, tz => 'Z'}, # using gmtime() we know we can add 'Z'
+    easy     => {%default, dt_sep => ' ', tz_sep => ' '}, # easier to read
+    numeric  => {%blank},
+    compact  => {
+      %blank,
+      dt_sep   => '_', # visual separation
+    },
+  };
+  # aliases
+  $n->{gm} = $n->{utc};
+  $n->{$_} = $n->{default} for qw(iso8601 rfc3339 w3cdtf);
+  $n;
+};
+
 
 sub _build_localstamp {
-	my $format = _format($_[2]->{format});
+  my $format = _format($_[2]);
 	return sub {
 		sprintf($format, _ymdhms(CORE::localtime()));
 	};
 }
 
 sub _build_gmstamp {
-	my $format = _format($_[2]->{format});
+  my $format = _format({format => 'utc', %{$_[2]}});
 	return sub {
 		sprintf($format, _ymdhms(CORE::gmtime()));
 	};
 }
 
 sub _format {
-	return $Formats{ $_[0] || 'common' };
+  my ($arg) = @_;
+
+  my $name = $arg->{format} || ''; # avoid undef
+  $name = 'default'
+    unless exists $formats->{$name};
+
+  my %opt = (%{ $formats->{$name} }, %$arg);
+
+  return
+    join($opt{date_sep}, qw(%04d %02d %02d)) .
+    $opt{dt_sep} .
+    join($opt{time_sep}, qw(%02d %02d %02d)) .
+    ($opt{tz} ? $opt{tz_sep} . $opt{tz} : '')
+  ;
 }
 
 sub _ymdhms {
