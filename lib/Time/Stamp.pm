@@ -230,7 +230,7 @@ The following functions are available for export
 
 Returns a string according to the format specified in the import call.
 
-The C<utc> format is the default for this function which sets C<tz> to 'Z'
+The C<utc> format is the default for this function which sets C<tz> to C<'Z'>
 since C<gmtime()> returns values in C<UTC> (no time zone offset).
 
 This is the recommended stamp as it is by default unambiguous
