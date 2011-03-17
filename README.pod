@@ -1,5 +1,18 @@
 =head1 Time::Stamp
 
+	use Time::Stamp 'gmstamp'; # default format is ISO 8601 / RFC 3339 / W3CDTF
+	$stamp = gmstamp();
+	$stamp = gmstamp($seconds);
+	# default $stamp looks like '2010-08-05T12:13:14Z'
+	# format can be changed with options on import
+
+This module makes it easy to include timestamp functions
+that are simple, easily readable, and fast.
+For simple timestamps perl's built-in functions are all you need:
+C<time|perlfunc/time>,
+C<gmtime|perlfunc/gmtime> (or C<localtime|perlfunc/localtime>),
+and C<sprintf|perlfunc/sprintf>...
+
 See module POD for more information.
 
 =cut
