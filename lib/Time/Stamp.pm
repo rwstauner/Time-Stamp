@@ -184,6 +184,71 @@ This module uses L<Sub::Exporter>
 to enable you to customize your timestamp function
 but still create it as easily as possible.
 
+The customizations to the format are done at import
+and stored in the custom function returned
+to make the resulting function as fast as possible.
+
+Each export accepts any of the keys listed in L</FORMAT>
+as well as C<format> which can be the name of a predefined format.
+
+  use Time::Stamp gmstamp => { dt_sep => ' ', tz => ' UTC' };
+
+  use Time::Stamp gmstamp => { -as => shorttime, format => 'compact' };
+
+Each timestamp function will return a string according to the time as follows:
+
+=begin :list
+
+* If called with no arguments C<time()> (I<now>) will be used.
+
+* A single argument should be an integer
+(like that returned from C<time()> or C<stat()>).
+
+* More than one argument is assumed to be the list returned from
+C<gmtime()> or C<localtime()> which can be useful if you previously called
+the function and don't want to do it again.
+
+=end :list
+
+Most commonly the 0 or 1 argument form would be used,
+but the shortcut of using a time array is provided
+in case you already have the array so that you don't have to use
+C<Time::Local> just to get the integer back.
+
+The following functions are available for export
+(nothing is exported by default):
+
+=head2 gmstamp
+
+  $stamp = gmstamp(); # equivalent to gmstamp(time())
+  $stamp = gmstamp($seconds);
+  $stamp = gmstamp(@gmtime);
+
+Returns a string according to the format specified in the import call.
+
+The C<utc> format is the default for this function which sets C<tz> to 'Z'
+since C<gmtime()> returns values in C<UTC> (no time zone offset).
+
+This is the recommended stamp as it is by default unambiguous
+and useful for transmitting to another computer.
+
+=head2 localstamp
+
+  $stamp = localstamp(); # equivalent to localstamp(time())
+  $stamp = localstamp($seconds);
+  $stamp = localstamp(@localtime);
+
+Returns a string according to the format specified in the import call.
+
+The C<default> format is used (which does not include a time zone indicator).
+
+This function can be useful for log files or other values that stay
+on the machine where time zone is not important and/or is constant.
+
+=head2 -stamps
+
+This is a convenience group for importing both L</gmstamp> and L</localstamp>.
+
 =head1 SEE ALSO
 
 =for :list
