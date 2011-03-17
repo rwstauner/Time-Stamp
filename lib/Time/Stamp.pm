@@ -119,6 +119,10 @@ __PACKAGE__->import(qw(localstamp gmstamp));
 
 This module makes it easy to include timestamp functions
 that are simple, easily readable, and fast.
+For simple timestamps perl's built-in functions are all you need:
+C<time|perlfunc/time>,
+C<gmtime|perlfunc/gmtime> (or C<localtime|perlfunc/localtime>),
+and C<sprintf|perlfunc/sprintf>...
 
 Sometimes you desire a simple timestamp to add to a file name
 or use as part of a generated data identifier.
