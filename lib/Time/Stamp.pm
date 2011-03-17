@@ -201,10 +201,14 @@ Each timestamp function will return a string according to the time as follows:
 
 * If called with no arguments C<time()> (I<now>) will be used.
 
-* A single argument should be an integer
+=item *
+
+A single argument should be an integer
 (like that returned from C<time()> or C<stat()>).
 
-* More than one argument is assumed to be the list returned from
+=item *
+
+More than one argument is assumed to be the list returned from
 C<gmtime()> or C<localtime()> which can be useful if you previously called
 the function and don't want to do it again.
 
