@@ -161,7 +161,8 @@ so that you can have easy-to-use, easy-to-read timestamps efficiently.
 
 For reasons listed elsewhere
 the timestamps are always in order from largest unit to smallest:
-year, month, day, hours, minutes, seconds.
+year, month, day, hours, minutes, seconds
+and are always two digits, except the year which is always four.
 
 The other characters of the stamp are configurable:
 
