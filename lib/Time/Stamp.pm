@@ -179,17 +179,19 @@ The following formats are predefined:
   iso8601 => \%default
   rfc3339 => \%default
   w3cdtf  => \%default
-    "2010-01-02T13:14:15"
+    "2010-01-02T13:14:15"    # local
+    "2010-01-02T13:14:15Z"   # gm
 
   easy    => like default but with a space as dt_sep and tz_sep (easier to read)
-    "2010-01-02 13:14:15"
-    "2010-01-02 13:14:15 Z"
+    "2010-01-02 13:14:15"    # local
+    "2010-01-02 13:14:15 Z"  # gm
 
   compact => condense date and time components and set dt_sep to '_'
-    "20100102_131415"
+    "20100102_131415"        # local
+    "20100102_131415Z"       # gm
 
   numeric => all options are '' so that only numbers remain
-    "20100102131415"
+    "20100102131415"         # both
 
 Currently there is no attempt to guess the time zone.
 By default C<gmstamp> sets C<tz> to C<'Z'> (which you can override if desired).
