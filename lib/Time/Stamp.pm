@@ -142,6 +142,42 @@ without incurring the resource cost of L<DateTime>
 So the aim of this module is to provide simple timestamp functions
 so that you can have easy-to-use, easy-to-read timestamps efficiently.
 
+=head1 FORMAT
+
+For reasons listed elsewhere
+the timestamps are always in order from largest unit to smallest:
+year, month, day, hours, minutes, seconds.
+
+The other characters of the stamp are configurable:
+
+=for :list
+* C<date_sep> - Character separating date components; Default: C<'-'>
+* C<dt_sep>   - Character separating date and time;   Default: C<'T'>
+* C<time_sep> - Character separating time components; Default: C<':'>
+* C<tz_sep>   - Character separating time and timezone; Default: C<''>
+* C<tz> - Time zone designator;  Default: C<''>
+
+The following formats are predefined:
+
+  default => see above descriptions
+  iso8601 => \%default
+  rfc3339 => \%default
+  w3cdtf  => \%default
+    "2010-01-02T13:14:15"
+
+  easy    => like default but with a space as dt_sep and tz_sep (easier to read)
+    "2010-01-02 13:14:15"
+    "2010-01-02 13:14:15 Z"
+
+  compact => condense date and time components and set dt_sep to '_'
+    "20100102_131415"
+
+  numeric => all options are '' so that only numbers remain
+    "20100102131415"
+
+  utc     => same as default but sets tz to 'Z'; this is the default for gmstamp
+    "2010-01-02T12:14:15Z"
+
 =head1 EXPORTS
 
 This module uses L<Sub::Exporter>
