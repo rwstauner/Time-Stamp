@@ -19,6 +19,8 @@ use Sub::Exporter 0.982 -setup => {
 
 # set up named formats with default values
 my $formats = do {
+  # should we offer { prefix => '', suffix => '' } ? is that really useful?
+  # the stamps are easy enough to parse as is (the whole point of this module)
   my %default = (
     date_sep => '-',
     dt_sep   => 'T', # ISO 8601
@@ -69,10 +71,14 @@ sub _format {
   my ($arg) = @_;
 
   my $name = $arg->{format} || ''; # avoid undef
+  # we could return $arg->{format} unless exists $formats->{$name}; warn if no % found?
+  # or just return $arg->{sprintf} if exists $arg->{sprintf};
   $name = 'default'
     unless exists $formats->{$name};
 
   my %opt = (%{ $formats->{$name} }, %$arg);
+
+  # TODO: $opt{tz} = tz_offset() if $opt{guess_tz};
 
   return
     join($opt{date_sep}, qw(%04d %02d %02d)) .
