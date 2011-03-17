@@ -4,6 +4,8 @@ package Time::Stamp;
 use strict;
 use warnings;
 
+# TODO: use collector?
+
 use Sub::Exporter 0.982 -setup => {
   exports => [
     localstamp => \'_build_localstamp',
@@ -40,6 +42,10 @@ my $formats = do {
   $n;
 };
 
+# we could offer a separate format_time_array() but currently
+# I think the gain would be less than the cost of the extra function call:
+# sub _build { return sub { format_time_array($arg, @_ or localtime) }; }
+# sub format_time_array { sprintf(_format(shift), _ymdhms(@_)) }
 
 sub _build_localstamp {
   my $format = _format($_[2]);
