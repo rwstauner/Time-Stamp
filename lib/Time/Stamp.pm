@@ -76,6 +76,7 @@ sub _format {
   $name = 'default'
     unless exists $formats->{$name};
 
+  # start with named format, overwrite with any explicitly specified options
   my %opt = (%{ $formats->{$name} }, %$arg);
 
   # TODO: $opt{tz} = tz_offset() if $opt{guess_tz};
@@ -88,6 +89,7 @@ sub _format {
   ;
 }
 
+# convert *time() arrays to something ready to send to sprintf
 sub _ymdhms {
   return ($_[5] + 1900, $_[4] + 1, @_[3, 2, 1, 0]);
 }
