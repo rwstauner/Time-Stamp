@@ -270,15 +270,23 @@ This is a convenience group for importing both L</gmstamp> and L</localstamp>.
 
 =begin :list
 
-* Figure out a solution for including the timezone.
+=item *
+
+Figure out a better solution for including or guessing the timezone.
 For C<gmtime()> there is none (which is easy).
 C<< POSIX::strftime("%z", localtime) >> is not the most efficient way
 to determine the offset, but it is in the core
 (compared to L<Time::Zone> and L<Time::Timezone>).
 
-* Allow an option for overwriting the globals
+=item *
+
+Allow an option for overwriting the globals
 so that calling C<localtime> in scalar context will return
 a stamp in the desired format.
 The normal values will be returned in list context.
+
+* Include the fractional portion of the seconds if present?
+
+=end :list
 
 =cut
