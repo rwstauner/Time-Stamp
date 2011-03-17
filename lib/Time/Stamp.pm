@@ -178,6 +178,28 @@ The following formats are predefined:
   utc     => same as default but sets tz to 'Z'; this is the default for gmstamp
     "2010-01-02T12:14:15Z"
 
+Currently there is no attempt to guess the time zone.
+The only named format to use one is C<utc> which is the default for C<gmstamp>.
+If you are using C<gmstamp> (recommended for transmitting to another computer)
+you don't need anything else.  If you are using C<localstamp> you are probably
+keeping the timestamp on that computer (like the stamp in a log file)
+and you probably aren't concerned with time zone since it isn't likely to change.
+
+If you want to include a time zone (other than C<'Z'> for UTC)
+the standards suggest using the offset value (like C<-0700> or C<+12:00>).
+If you would like to determine the time zone offset you can do something like:
+
+  use Time::Zone (); # or Time::Timezone
+  use Time::Stamp localtime => { tz => Time::Zone::tz_offset() };
+
+If, despite the recommendations, you want to use the local time zone code:
+
+  use POSIX (); # included in perl core
+  use Time::Stamp localtime => { tz => POSIX::strftime('%Z', localtime) };
+
+These options are not included in this module since they are not recommended
+and introduce unnecessary overhead (loading the afore mentioned modules).
+
 =head1 EXPORTS
 
 This module uses L<Sub::Exporter>
@@ -273,14 +295,6 @@ This is a convenience group for importing both L</gmstamp> and L</localstamp>.
 =head1 TODO
 
 =begin :list
-
-=item *
-
-Figure out a better solution for including or guessing the timezone.
-For C<gmtime()> there is none (which is easy).
-C<< POSIX::strftime("%z", localtime) >> is not the most efficient way
-to determine the offset, but it is in the core
-(compared to L<Time::Zone> and L<Time::Timezone>).
 
 =item *
 
