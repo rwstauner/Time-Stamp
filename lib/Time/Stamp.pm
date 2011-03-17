@@ -29,7 +29,6 @@ my $formats = do {
   my %blank = map { $_ => '' } keys %default;
   my $n = {
     default  => {%default},
-    utc      => {%default, tz => 'Z'}, # using gmtime() we know we can add 'Z'
     easy     => {%default, dt_sep => ' ', tz_sep => ' '}, # easier to read
     numeric  => {%blank},
     compact  => {
@@ -38,7 +37,6 @@ my $formats = do {
     },
   };
   # aliases
-  $n->{gm} = $n->{utc};
   $n->{$_} = $n->{default} for qw(iso8601 rfc3339 w3cdtf);
   $n;
 };
@@ -49,14 +47,19 @@ my $formats = do {
 # sub format_time_array { sprintf(_format(shift), _ymdhms(@_)) }
 
 sub _build_localstamp {
-  my $format = _format($_[2]);
+  my ($class, $name, $arg, $col) = @_;
+  my $format = _format($arg);
   return sub {
     sprintf($format, _ymdhms(@_ > 1 ? @_ : CORE::localtime(@_ ? $_[0] : time)));
   };
 }
 
 sub _build_gmstamp {
-  my $format = _format({format => 'utc', %{$_[2]}});
+  my ($class, $name, $arg, $col) = @_;
+  # add the Z for UTC (Zulu) time zone unless the numeric format is requested
+  $arg = {tz => 'Z', %$arg}
+    unless $arg->{format} && $arg->{format} eq 'numeric';
+  my $format = _format($arg);
   return sub {
     sprintf($format, _ymdhms(@_ > 1 ? @_ : CORE::gmtime(   @_ ? $_[0] : time)));
   };
@@ -175,11 +178,8 @@ The following formats are predefined:
   numeric => all options are '' so that only numbers remain
     "20100102131415"
 
-  utc     => same as default but sets tz to 'Z'; this is the default for gmstamp
-    "2010-01-02T12:14:15Z"
-
 Currently there is no attempt to guess the time zone.
-The only named format to use one is C<utc> which is the default for C<gmstamp>.
+By default C<gmstamp> sets C<tz> to C<'Z'> (which you can override if desired).
 If you are using C<gmstamp> (recommended for transmitting to another computer)
 you don't need anything else.  If you are using C<localstamp> you are probably
 keeping the timestamp on that computer (like the stamp in a log file)
@@ -252,7 +252,7 @@ The following functions are available for export
 
 Returns a string according to the format specified in the import call.
 
-The C<utc> format is the default for this function which sets C<tz> to C<'Z'>
+By default this function sets C<tz> to C<'Z'>
 since C<gmtime()> returns values in C<UTC> (no time zone offset).
 
 This is the recommended stamp as it is by default unambiguous
@@ -266,7 +266,7 @@ and useful for transmitting to another computer.
 
 Returns a string according to the format specified in the import call.
 
-The C<default> format is used (which does not include a time zone indicator).
+By default this function does not include a time zone indicator.
 
 This function can be useful for log files or other values that stay
 on the machine where time zone is not important and/or is constant.
