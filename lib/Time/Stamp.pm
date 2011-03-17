@@ -93,8 +93,16 @@ __PACKAGE__->import(qw(localstamp gmstamp));
 
 =head1 SYNOPSIS
 
-	use Time::Stamp 'gmstamp';
-	use Time::Stamp localstamp => { -as => 'ltime', format => 'easy' };
+  use Time::Stamp 'gmstamp';
+
+  use Time::Stamp localstamp => { -as => 'ltime', format => 'compact' };
+
+  use Time::Stamp -stamps => { dt_sep => ' ', date_sep => '/' };
+
+  # the default configurations of localstamp and gmstamp
+  # are available without importing into your namespace
+  # but this is probably less useful
+  $stamp = Time::Stamp::gmstamp($time);
 
 =head1 DESCRIPTION
 
