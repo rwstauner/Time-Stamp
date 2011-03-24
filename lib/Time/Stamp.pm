@@ -107,7 +107,11 @@ __PACKAGE__->import(qw(
 
 =head1 SYNOPSIS
 
+  # import customized functions to make simple, readable timestamps
+
   use Time::Stamp 'gmstamp';
+  my $now = gmstamp();
+  my $mtime = gmstamp( (stat($file))[9] );
 
   use Time::Stamp localstamp => { -as => 'ltime', format => 'compact' };
 
