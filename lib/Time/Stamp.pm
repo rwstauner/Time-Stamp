@@ -140,8 +140,8 @@ This integer timestamp works for these purposes,
 but it's not easy to read.
 
 If you're looking at a list of timestamps you have to fire up a perl
-interpreter and copy and paste the timestamp into L<localtime()|perlfunc/time>
-to figure out when that actually was.
+interpreter and copy and paste the timestamp into
+L<localtime()|perlfunc/localtime> to figure out when that actually was.
 
 You can pass the timestamp to C<scalar localtime($sec)>
 (or C<scalar gmtime($sec)>)
@@ -153,7 +153,7 @@ and contains characters that aren't friendly for file names or URIs
 See L<perlport/Time and Date> for more discussion on useful timestamps.
 
 For simple timestamps you can get the data you need from
-L<perlfunc/localtime> and L<perlfunc/gmtime>
+L<localtime|perlfunc/localtime> and L<gmtime|perlfunc/gmtime>
 without incurring the resource cost of L<DateTime>
 (or any other object for that matter).
 
@@ -224,16 +224,26 @@ This module uses L<Sub::Exporter>
 to enable you to customize your timestamp function
 but still create it as easily as possible.
 
-The customizations to the format are done at import
+The customizations are done at import
 and stored in the custom function returned
 to make the resulting function as fast as possible.
 
-Each export accepts any of the keys listed in L</FORMAT>
+The following groups and functions are available for export
+(nothing is exported by default):
+
+=head2 -stamps
+
+This is a convenience group for importing both L</gmstamp> and L</localstamp>.
+
+Each timestamp export accepts any of the keys listed in L</FORMAT>
 as well as C<format> which can be the name of a predefined format.
+
+  use Time::Stamp '-stamps';
+  use Time::Stamp  -stamps => { format => 'compact' };
 
   use Time::Stamp gmstamp => { dt_sep => ' ', tz => ' UTC' };
 
-  use Time::Stamp gmstamp => { -as => shorttime, format => 'compact' };
+  use Time::Stamp localstamp => { -as => shorttime, format => 'compact' };
 
 Each timestamp function will return a string according to the time as follows:
 
@@ -257,10 +267,7 @@ the function and don't want to do it again.
 Most commonly the 0 or 1 argument form would be used,
 but the shortcut of using a time array is provided
 in case you already have the array so that you don't have to use
-C<Time::Local> just to get the integer back.
-
-The following functions are available for export
-(nothing is exported by default):
+L<Time::Local> just to get the integer back.
 
 =head2 gmstamp
 
@@ -268,7 +275,7 @@ The following functions are available for export
   $stamp = gmstamp($seconds);
   $stamp = gmstamp(@gmtime);
 
-Returns a string according to the format specified in the import call.
+This returns a string according to the format specified in the import call.
 
 By default this function sets C<tz> to C<'Z'>
 since C<gmtime()> returns values in C<UTC> (no time zone offset).
@@ -282,16 +289,12 @@ and useful for transmitting to another computer.
   $stamp = localstamp($seconds);
   $stamp = localstamp(@localtime);
 
-Returns a string according to the format specified in the import call.
+This returns a string according to the format specified in the import call.
 
 By default this function does not include a time zone indicator.
 
 This function can be useful for log files or other values that stay
 on the machine where time zone is not important and/or is constant.
-
-=head2 -stamps
-
-This is a convenience group for importing both L</gmstamp> and L</localstamp>.
 
 =head1 SEE ALSO
 
