@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 use Test::More 0.96;
+use Time::Local (); # core
 
 # this script is testing exports/options (which means gmtime *and* localtime)
 # so to avoid trouble with unknown time zones don't bother to mock time() just use regexps
@@ -67,6 +68,19 @@ like(Shemp::localstamp, qr/^\d{4} \d{2} \d{2}      \d{2} \d{2} \d{2} \. 0000$/x,
 
 like(Joe::gmstamp,    qr/^\d{4} \d{2} \d{2} _ \d{2} \d{2} \d{2} Z$/x, 'gmstamp compact');
 like(Joe::localstamp, qr/^\d{4} \d{2} \d{2} _ \d{2} \d{2} \d{2}$/x, 'localstamp compact');
+
+# parsers
+{ package # shh...
+  CurlyJoe; use Time::Stamp
+    'parsegm',
+    # how's this for 'contrived':
+    parsegm    => { -as => 'parsegs', regexp =>  q/^3(\d{4})99(\d{2})99(\d{2})\D+(\d{2})\D*(\d{2})\D*(\d{2})$/},
+    parselocal => { -as => 'parselr',  regexp => qr/(\d+).(\d+).(\d+)=(\d+):(\d+):(\d+)/};
+}
+
+is(CurlyJoe::parsegm('20101230  171819'),     Time::Local::timegm(   19, 18, 17, 30, 11, 110), 'parsestamp to timegm');
+is(CurlyJoe::parsegs('3201099129930_171819'), Time::Local::timegm(   19, 18, 17, 30, 11, 110), 'parsestamp to timegm');
+is(CurlyJoe::parselr('1998/11/29=04:05:06' ), Time::Local::timelocal( 6,  5,  4, 29, 10,  98), 'parsestamp to timelocal');
 
 # collector
 # TODO

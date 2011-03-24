@@ -8,14 +8,17 @@ eval "require $mod" or die $@;
 
 # Test that subs have been defined in the package (__PACKAGE__->import)
 
-my @subs = qw(
-  localstamp
-  gmstamp
+my @subs = (
+  [localstamp => []],
+  [gmstamp => []],
+  [parselocal => ['2011-03-02T11:12:13']],
+  [parsegm    => ['2011-03-02T11:12:13Z']],
 );
 
 plan tests => scalar @subs;
 
 foreach my $sub ( @subs ){
+  my ($name, $args) = @$sub;
   no strict 'refs';
-  ok(eval { &{"${mod}::${sub}"}() }, "have ${mod}::${sub}()");
+  ok(eval { &{"${mod}::${name}"}(@$args) }, "have ${mod}::${name}()");
 }
