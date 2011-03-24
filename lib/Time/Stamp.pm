@@ -96,7 +96,10 @@ sub _ymdhms {
 
 # define default localstamp and gmstamp in this package
 # so that exporting is not strictly required
-__PACKAGE__->import(qw(localstamp gmstamp));
+__PACKAGE__->import(qw(
+  localstamp
+  gmstamp
+));
 
 1;
 
