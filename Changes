@@ -2,6 +2,11 @@ Revision history for Time-Stamp
 
 {{$NEXT}}
 
+1.001 2011-03-24
+
+  - Added functions for parsing the timestamps back into epoch-seconds
+  - Documentation fixes
+
 1.000 2011-03-17
 
   - Initial release to CPAN
