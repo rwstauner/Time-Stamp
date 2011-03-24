@@ -11,9 +11,12 @@ use Sub::Exporter 0.982 -setup => {
   exports => [
     localstamp => \'_build_localstamp',
     gmstamp    => \'_build_gmstamp',
+    parsegm    => \'_build_parsestamp',
+    parselocal => \'_build_parsestamp',
   ],
   groups => [
     stamps => [qw(localstamp gmstamp)],
+    parsers => [qw(parselocal parsegm)],
   ]
 };
 
@@ -67,6 +70,36 @@ sub _build_gmstamp {
   };
 }
 
+sub _build_parsestamp {
+  my ($class, $name, $arg, $col) = @_;
+
+  # pre-compile the regexp
+  my $regexp = exists $arg->{regexp}
+    ? qr/$arg->{regexp}/
+    : qr/^ (\d{4}) \D* (\d{2}) \D* (\d{2}) \D*
+           (\d{2}) \D* (\d{2}) \D* (\d{2} (?:\.\d+)?) .* $/x;
+
+  require Time::Local; # core
+  my $time = $name eq 'parsegm'
+    ? \&Time::Local::timegm
+    : \&Time::Local::timelocal;
+
+  return sub {
+    my ($stamp) = @_;
+    # coerce strings into numbers (map { int } would not work for fractions)
+    my @time = reverse map { $_ + 0 } ($stamp =~ $regexp);
+
+    # if the regexp didn't match (empty list) give up now
+    return
+      if !@time;
+
+    $time[5] -= 1900; # year
+    $time[4] -= 1;    # month
+
+    return wantarray ? @time : &$time(@time);
+  };
+}
+
 sub _format {
   my ($arg) = @_;
 
@@ -99,11 +132,14 @@ sub _ymdhms {
 __PACKAGE__->import(qw(
   localstamp
   gmstamp
+  parsegm
+  parselocal
 ));
 
 1;
 
 =for stopwords TODO timestamp gmstamp localstamp UTC
+parsegm parselocal
 
 =head1 SYNOPSIS
 
@@ -117,10 +153,20 @@ __PACKAGE__->import(qw(
 
   use Time::Stamp -stamps => { dt_sep => ' ', date_sep => '/' };
 
-  # the default configurations of localstamp and gmstamp
+  # inverse functions to parse the stamps
+
+  use Time::Stamp 'parsegm';
+  my $seconds = parsegm($stamp);
+
+  use Time::Stamp parselocal => { -as => 'parsel', regexp => qr/$pattern/ };
+
+  use Time::Stamp -parsers => { regexp => qr/$pattern/ };
+
+  # the default configurations of each function
   # are available without importing into your namespace
-  # but this is probably less useful
+
   $stamp = Time::Stamp::gmstamp($time);
+  $time  = Time::Stamp::parsegm($stamp);
 
 =head1 DESCRIPTION
 
@@ -299,6 +345,60 @@ By default this function does not include a time zone indicator.
 
 This function can be useful for log files or other values that stay
 on the machine where time zone is not important and/or is constant.
+
+=head2 -parsers
+
+This is a convenience group for importing both L</parsegm> and L</parselocal>.
+
+  use Time::Stamp '-parsers';
+  use Time::Stamp  -parsers => { regexp => qr/pattern/ };
+
+  use Time::Stamp 'parsegm';
+
+  use Time::Stamp  parselocal => { -as => 'parsestamp', regexp => qr/pattern/ };
+
+The parser functions are the inverse of the stamp functions.
+They accept a timestamp and use the appropriate function from L<Time::Local>
+to turn it back into a seconds-since-epoch integer.
+
+In list context they return the list that would have been sent to L<Time::Local>
+which is similar to the one returned by
+L<gmtime|perlfunc/gmtime> and L<localtime|perlfunc/localtime>:
+seconds, minutes, hours, day, month (0-11), year (-1900).
+B<NOTE> that the C<wday>, C<yday>, and C<isdst> parameters
+(the last three elements returned from C<localtime> or C<gmtime>)
+are not returned because they are not easily determined from the stamp.
+Besides L<Time::Local> only takes the first 6 anyway.
+
+If the stamp doesn't match the pattern
+the function will return undef in scalar context
+or an empty list in list context.
+
+An alternate regular expression can be supplied as the C<regexp> parameter
+during import.  The default pattern will match any of the named formats.
+
+The pattern must capture 6 groups in the appropriate order:
+year, month, day, hour, minute, second.
+If you're doing something more complex you probably ought to be using
+one of the modules listed in L<SEE ALSO>.
+
+=head2 parsegm
+
+  $seconds = parsegm($stamp);
+  @gmtime  = parsegm($stamp);
+
+This is the inverse of L</gmstamp>.
+It parses a timestamp (like the ones created by this module) and uses
+L<Time::Local/timegm> to turn it back into a seconds-since-epoch integer.
+
+=head2 parselocal
+
+  $seconds   = parselocal($stamp);
+  @localtime = parselocal($stamp);
+
+This is the inverse of L</localstamp>.
+It parses a timestamp (like the ones created by this module) and uses
+L<Time::Local/timelocal> to it them back into a seconds-since-epoch integer.
 
 =head1 SEE ALSO
 
