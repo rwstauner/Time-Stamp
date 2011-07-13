@@ -4,11 +4,11 @@ Revision history for Time-Stamp
 
   - Superficial dist/release changes
 
-1.001 2011-03-24
+1.001     2011-03-24T16:21:01Z
 
   - Added functions for parsing the timestamps back into epoch-seconds
   - Documentation fixes
 
-1.000 2011-03-17
+1.000     2011-03-17T18:46:23Z
 
   - Initial release to CPAN
