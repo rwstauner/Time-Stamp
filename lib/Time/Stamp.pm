@@ -1,9 +1,9 @@
 # vim: set sw=2 sts=2 ts=2 expandtab smarttab:
-package Time::Stamp;
-# ABSTRACT: Easy, readable, efficient timestamp functions
-
 use strict;
 use warnings;
+
+package Time::Stamp;
+# ABSTRACT: Easy, readable, efficient timestamp functions
 
 # TODO: use collector?
 
