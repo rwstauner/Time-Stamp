@@ -52,7 +52,8 @@ my $formats = do {
 # sub format_time_array { sprintf(_format(shift), _ymdhms(@_)) }
 
 sub _build_localstamp {
-  my ($class, $name, $arg, $col) = @_;
+##my ( $class, $name, $arg, $col ) = @_;
+  my ( undef, undef, $arg, undef ) = @_;
   my $format = _format($arg);
   return sub {
     sprintf($format, _ymdhms(@_ > 1 ? @_ : CORE::localtime(@_ ? $_[0] : time)));
@@ -60,7 +61,8 @@ sub _build_localstamp {
 }
 
 sub _build_gmstamp {
-  my ($class, $name, $arg, $col) = @_;
+##my ( $class, $name, $arg, $col ) = @_;
+  my ( undef, undef, $arg, undef ) = @_;
   # add the Z for UTC (Zulu) time zone unless the numeric format is requested
   $arg = {tz => 'Z', %$arg}
     unless $arg->{format} && $arg->{format} eq 'numeric';
@@ -71,7 +73,8 @@ sub _build_gmstamp {
 }
 
 sub _build_parsestamp {
-  my ($class, $name, $arg, $col) = @_;
+##my ($class, $name, $arg, $col) = @_;
+  my ( undef, $name, $arg, undef ) = @_;
 
   # pre-compile the regexp
   my $regexp = exists $arg->{regexp}
@@ -140,6 +143,9 @@ __PACKAGE__->import(qw(
 
 =for stopwords TODO timestamp gmstamp localstamp UTC
 parsegm parselocal
+
+=for test_synopsis
+my ( $file, $pattern, $stamp, $time );
 
 =head1 SYNOPSIS
 
