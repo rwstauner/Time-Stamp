@@ -1,10 +1,10 @@
 =head1 Time::Stamp
 
-	use Time::Stamp 'gmstamp'; # default format is ISO 8601 / RFC 3339 / W3CDTF
-	$stamp = gmstamp();
-	$stamp = gmstamp($seconds);
-	# default $stamp looks like '2010-08-05T12:13:14Z'
-	# format can be changed with options on import
+  use Time::Stamp 'gmstamp'; # default format is ISO 8601 / RFC 3339 / W3CDTF
+  $stamp = gmstamp();
+  $stamp = gmstamp($seconds);
+  # default $stamp looks like '2010-08-05T12:13:14Z'
+  # format can be changed with options on import
 
 This module makes it easy to include timestamp functions
 that are simple, easily readable, and fast.
