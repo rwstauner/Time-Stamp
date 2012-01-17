@@ -8,6 +8,7 @@ package Time::Stamp;
 # TODO: use collector?
 
 use Sub::Exporter 0.982 -setup => {
+  -as => 'do_import',
   exports => [
     localstamp => \'_build_localstamp',
     gmstamp    => \'_build_gmstamp',
@@ -19,6 +20,11 @@ use Sub::Exporter 0.982 -setup => {
     parsers => [qw(parselocal parsegm)],
   ]
 };
+
+sub import {
+  @_ = map { /(local|gm)(?:stamp)?-(\w+)/ ? ($1.'stamp' => { format => $2 }) : $_ } @_;
+  goto &do_import;
+}
 
 # set up named formats with default values
 my $formats = do {
@@ -173,6 +179,9 @@ my ( $file, $pattern, $stamp, $time );
 
   $stamp = Time::Stamp::gmstamp($time);
   $time  = Time::Stamp::parsegm($stamp);
+
+  # use shortcuts for specifying desired format, useful for one-liners:
+  qx/perl -MTime::Stamp=local-compact -E 'say localstamp'/;
 
 =head1 DESCRIPTION
 
@@ -405,6 +414,28 @@ L<Time::Local/timegm> to turn it back into a seconds-since-epoch integer.
 This is the inverse of L</localstamp>.
 It parses a timestamp (like the ones created by this module) and uses
 L<Time::Local/timelocal> to it them back into a seconds-since-epoch integer.
+
+=head2 SHORTCUTS
+
+There are also shortcuts available in the format of C<< type-format >>
+that export the appropriate function using the named format.
+
+For example:
+
+=for :list
+* C<local-compact> exports a L</localstamp> function using the C<compact> format
+* C<gm-easy> exports a L</gmstamp> function using the C<easy> format
+
+This makes the module easier to use on the command line:
+
+  perl -MTime::Stamp=local-compact -E 'say localstamp'
+
+Rather than:
+
+  perl -E 'use Time::Stamp localstamp => { format => "compact" }; say localstamp'
+
+Any of the predefined formats named in L</FORMAT>
+can be used in the shortcut notation.
 
 =head1 SEE ALSO
 

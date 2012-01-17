@@ -82,6 +82,14 @@ is(CurlyJoe::parsegm('20101230  171819'),     Time::Local::timegm(   19, 18, 17,
 is(CurlyJoe::parsegs('3201099129930_171819'), Time::Local::timegm(   19, 18, 17, 30, 11, 110), 'parsestamp to timegm');
 is(CurlyJoe::parselr('1998/11/29=04:05:06' ), Time::Local::timelocal( 6,  5,  4, 29, 10,  98), 'parsestamp to timelocal');
 
+# shortcuts
+{ package # shh...
+  RanOutOfStooges; use Time::Stamp qw( local-compact gm-easy );
+}
+
+like(RanOutOfStooges::gmstamp,    qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} Z$/,  'gm-easy shortcut');
+like(RanOutOfStooges::localstamp, qr/^\d{4} \d{2} \d{2} _ \d{2} \d{2} \d{2}$/x, 'local-compact shortcut');
+
 # collector
 # TODO
 

@@ -2,6 +2,8 @@ Revision history for Time-Stamp
 
 {{$NEXT}}
 
+  - Enable shortcuts like 'gm-compact' to simplify one-liners
+
 1.002     2011-07-15T00:22:07Z
 
   - Superficial dist/release changes
