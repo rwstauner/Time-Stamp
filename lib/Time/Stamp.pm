@@ -130,7 +130,7 @@ CODE
   # poor man's template (easier than sprintf or escaping sigils)
   $code =~ s/\{\{(\w+)\}\}/$vars->{$1}/g;
 
-  return do { eval $code or die $@ };
+  return do { eval $code or die $@ }; ## no critic (StringyEval)
 }
 
 sub _build_parsestamp {
@@ -292,7 +292,7 @@ my ( $file, $pattern, $stamp, $time );
 =head1 DESCRIPTION
 
 This module makes it easy to include timestamp functions
-that are simple, easily readable, easily parseable, and fast.
+that are simple, easy to read, easy to parse, and fast.
 For simple timestamps perl's built-in functions are all you need:
 L<time|perlfunc/time>,
 L<gmtime|perlfunc/gmtime> (or L<localtime|perlfunc/localtime>),
@@ -514,6 +514,8 @@ The pattern must capture 6 groups in the appropriate order:
 year, month, day, hour, minute, second.
 If you're doing something more complex you probably ought to be using
 one of the modules listed in L<SEE ALSO>.
+
+=for :stopwords 6th 7th
 
 An optional 7th group can be used to capture the fractional seconds.
 If only 6 groups are used, the 6th capture (seconds)
