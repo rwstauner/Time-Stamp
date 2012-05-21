@@ -89,6 +89,8 @@ like(JoeFrac::localstamp, qr/^\d{4} \d{2} \d{2} _ \d{2} \d{2} \d{2} \.\d{9}  $/x
 { package # shh...
   CurlyJoe; use Time::Stamp
     'parsegm',
+    parsegm    => { -as => 'parsegf', regexp => qr/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d*)/ },
+    parselocal => { -as => 'parself', regexp => qr/(\d+) (\d+) (\d+) (\d+) (\d+) (\d+) (0?\.\d+)?/ },
     # how's this for 'contrived':
     parsegm    => { -as => 'parsegs', regexp =>  q/^3(\d{4})99(\d{2})99(\d{2})\D+(\d{2})\D*(\d{2})\D*(\d{2})$/},
     parselocal => { -as => 'parselr',  regexp => qr/(\d+).(\d+).(\d+)=(\d+):(\d+):(\d+)/};
@@ -96,6 +98,8 @@ like(JoeFrac::localstamp, qr/^\d{4} \d{2} \d{2} _ \d{2} \d{2} \d{2} \.\d{9}  $/x
 
 is(CurlyJoe::parsegm('20101230  171819'),     Time::Local::timegm(   19, 18, 17, 30, 11, 110), 'parsestamp to timegm');
 is(CurlyJoe::parsegs('3201099129930_171819'), Time::Local::timegm(   19, 18, 17, 30, 11, 110), 'parsestamp to timegm');
+is(CurlyJoe::parsegf('201012301718193456789'),Time::Local::timegm(   19, 18, 17, 30, 11, 110).'.3456789', 'parsestamp to timegm with fraction');
+is(CurlyJoe::parself('1998 11 29 04 05 06 0.2345' ), Time::Local::timelocal( 6,  5,  4, 29, 10,  98).'.2345', 'parsestamp to timelocal with fraction');
 is(CurlyJoe::parselr('1998/11/29=04:05:06' ), Time::Local::timelocal( 6,  5,  4, 29, 10,  98), 'parsestamp to timelocal');
 
 # shortcuts

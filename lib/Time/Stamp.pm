@@ -130,7 +130,7 @@ sub _build_parsestamp {
   my $regexp = exists $arg->{regexp}
     ? qr/$arg->{regexp}/
     : qr/^ (\d{4}) \D* (\d{2}) \D* (\d{2}) \D*
-           (\d{2}) \D* (\d{2}) \D* (\d{2} (?:\.\d+)?) .* $/x;
+           (\d{2}) \D* (\d{2}) \D* (\d{2}) (?:\.(\d+))? .* $/x;
 
   require Time::Local; # core
   my $time = $name eq 'parsegm'
@@ -139,17 +139,39 @@ sub _build_parsestamp {
 
   return sub {
     my ($stamp) = @_;
-    # coerce strings into numbers (map { int } would not work for fractions)
-    my @time = reverse map { $_ + 0 } ($stamp =~ $regexp);
+    my ($frac, @time) = reverse ($stamp =~ $regexp);
 
     # if the regexp didn't match (empty list) give up now
     return
       if !@time;
 
+    # no fraction in regexp
+    if( @time < 6 ){
+      unshift @time, $frac;
+      undef $frac;
+    }
+
+    # coerce strings into numbers (map { int } would not work for fractions)
+    @time = map { $_ + 0 } @time;
+
     $time[5] -= 1900; # year
     $time[4] -= 1;    # month
 
-    return wantarray ? @time : &$time(@time);
+    # make sure it starts with a dot (whether it has one or not)
+    $frac =~ s/^0?\.?/./
+      if defined $frac;
+
+    if( wantarray ){
+      $time[0] .= $frac
+        if defined $frac;
+      return @time;
+    }
+    else {
+      my $ts = &$time(@time);
+      $ts .= $frac
+        if defined $frac;
+      return $ts;
+    }
   };
 }
 
@@ -472,6 +494,9 @@ The pattern must capture 6 groups in the appropriate order:
 year, month, day, hour, minute, second.
 If you're doing something more complex you probably ought to be using
 one of the modules listed in L<SEE ALSO>.
+
+An optional 7th group can be used to capture the fraction of the seconds
+(which will be appended to the result).
 
 =head2 parsegm
 
