@@ -1,6 +1,6 @@
 =for :stopwords Randy Stauner ACKNOWLEDGEMENTS TODO timestamp gmstamp localstamp UTC
-parsegm parselocal cpan testmatrix url annocpan anno bugtracker rt cpants
-kwalitee diff irc mailto metadata placeholders metacpan
+parsegm parselocal 6th 7th cpan testmatrix url annocpan anno bugtracker rt
+cpants kwalitee diff irc mailto metadata placeholders metacpan
 
 =encoding utf-8
 
@@ -10,19 +10,24 @@ Time::Stamp - Easy, readable, efficient timestamp functions
 
 =head1 VERSION
 
-version 1.003
+version 1.200
 
 =head1 SYNOPSIS
 
-  # import customized functions to make simple, readable timestamps
+  # import customized functions to make easy-to-use timestamps
 
   use Time::Stamp 'gmstamp';
   my $now = gmstamp();
   my $mtime = gmstamp( (stat($file))[9] );
+    # $mtime is something like "2012-05-18T10:52:32Z"
+
 
   use Time::Stamp localstamp => { -as => 'ltime', format => 'compact' };
+    # ltime() will return something like "20120518_105232"
 
-  use Time::Stamp -stamps => { dt_sep => ' ', date_sep => '/' };
+  use Time::Stamp -stamps => { dt_sep => ' ', date_sep => '/', us => 1 };
+    # localstamp() will return something like "2012/05/18 10:52:32.123456"
+
 
   # inverse functions to parse the stamps
 
@@ -33,19 +38,25 @@ version 1.003
 
   use Time::Stamp -parsers => { regexp => qr/$pattern/ };
 
+
   # the default configurations of each function
   # are available without importing into your namespace
 
   $stamp = Time::Stamp::gmstamp($time);
   $time  = Time::Stamp::parsegm($stamp);
 
+
   # use shortcuts for specifying desired format, useful for one-liners:
   qx/perl -MTime::Stamp=local-compact -E 'say localstamp'/;
+  # with milliseconds:
+  qx/perl -MTime::Stamp=local-compact-ms -E 'say localstamp'/;
+  # with microseconds:
+  qx/perl -MTime::Stamp=local-compact-us -E 'say localstamp'/;
 
 =head1 DESCRIPTION
 
 This module makes it easy to include timestamp functions
-that are simple, easily readable, and fast.
+that are simple, easy to read, easy to parse, and fast.
 For simple timestamps perl's built-in functions are all you need:
 L<time|perlfunc/time>,
 L<gmtime|perlfunc/gmtime> (or L<localtime|perlfunc/localtime>),
@@ -116,6 +127,18 @@ C<tz_sep>   - Character separating time and timezone; Default: C<''>
 =item *
 
 C<tz> - Time zone designator;  Default: C<''>
+
+=item *
+
+C<frac> - Digits of fractional seconds to show; Default: no fraction
+
+=item *
+
+C<ms> - Boolean shortcut: milliseconds; If true, same as C<< frac => 3 >>
+
+=item *
+
+C<us> - Boolean shortcut: microseconds; If true, same as C<< frac => 6 >>
 
 =back
 
@@ -194,18 +217,28 @@ Each timestamp function will return a string according to the time as follows:
 
 =item *
 
-If called with no arguments C<time()> (I<now>) will be used.
+If called with no arguments C<time()> (I<now>) will be used
+
+(or L<Time::HiRes/gettimeofday> for fractional seconds).
 
 =item *
 
 A single argument should be an integer
 (like that returned from C<time()> or C<stat()>).
 
+If a floating point number is provided
+(and fractional seconds were part of the format)
+the fraction will be preserved (according to the specified precision).
+
 =item *
 
 More than one argument is assumed to be the list returned from
 C<gmtime()> or C<localtime()> which can be useful if you previously called
 the function and don't want to do it again.
+
+If the first argument (seconds) is a floating point number
+(and fractional seconds were part of the format)
+the fraction will be preserved (according to the specified precision).
 
 =back
 
@@ -277,6 +310,16 @@ year, month, day, hour, minute, second.
 If you're doing something more complex you probably ought to be using
 one of the modules listed in L<SEE ALSO>.
 
+An optional 7th group can be used to capture the fractional seconds.
+If only 6 groups are used, the 6th capture (seconds)
+will be checked for a fraction.
+The fraction will be separated from the whole number
+before being passed through the L<Time::Local> functions
+then appended to the result
+(the number returned in scalar context,
+or to the first element returned in list context)
+in an attempt to provide the most expected/reliable result.
+
 =head2 parsegm
 
   $seconds = parsegm($stamp);
@@ -324,6 +367,20 @@ Rather than:
 
 Any of the predefined formats named in L</FORMAT>
 can be used in the shortcut notation.
+
+Additionally recognized flags include:
+
+=over 4
+
+=item *
+
+C<us> adds microseconds (6 digit precision): C<< local-easy-us >>
+
+=item *
+
+C<ms> adds milliseconds (3 digit precision): C<< gm-ms >>
+
+=back
 
 =head1 SEE ALSO
 
@@ -393,10 +450,6 @@ Allow an option for overwriting the globals
 so that calling C<localtime> in scalar context will return
 a stamp in the desired format.
 The normal values will be returned in list context.
-
-=item *
-
-Include the fractional portion of the seconds if present?
 
 =back
 

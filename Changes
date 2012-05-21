@@ -2,6 +2,11 @@ Revision history for Time-Stamp
 
 {{$NEXT}}
 
+1.200     2012-05-21T18:02:33Z
+
+  - Enable fractional seconds in timestamps
+    and handle them correctly in parsers
+
 1.003     2012-01-17T20:46:12Z
 
   - Enable shortcuts like 'gm-compact' to simplify one-liners
