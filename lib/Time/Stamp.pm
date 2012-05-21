@@ -60,22 +60,44 @@ my $formats = do {
 sub _build_localstamp {
 ##my ( $class, $name, $arg, $col ) = @_;
   my ( undef, undef, $arg, undef ) = @_;
-  my $format = _format($arg);
-  return sub {
-    sprintf($format, _ymdhms(@_ > 1 ? @_ : CORE::localtime(@_ ? $_[0] : time)));
-  };
+
+  return _generate_code(local => $arg);
 }
 
 sub _build_gmstamp {
 ##my ( $class, $name, $arg, $col ) = @_;
   my ( undef, undef, $arg, undef ) = @_;
+
   # add the Z for UTC (Zulu) time zone unless the numeric format is requested
   $arg = {tz => 'Z', %$arg}
     unless $arg->{format} && $arg->{format} eq 'numeric';
+
+  return _generate_code(gm => $arg);
+}
+
+sub _generate_code {
+  my ($which, $arg) = @_;
+  $arg = { %$arg };
+
   my $format = _format($arg);
-  return sub {
-    sprintf($format, _ymdhms(@_ > 1 ? @_ : CORE::gmtime(   @_ ? $_[0] : time)));
+
+  my $code;
+  my $vars = {
+    which => $which,
   };
+  {
+    $code = <<'CODE';
+      sub {
+        return sprintf($format,
+          _ymdhms(@_ > 1 ? @_ : CORE::{{which}}time(@_ ? $_[0] : time))
+        );
+      };
+CODE
+  }
+  # poor man's template (easier than sprintf or escaping sigils)
+  $code =~ s/\{\{(\w+)\}\}/$vars->{$1}/g;
+
+  return do { eval $code or die $@ };
 }
 
 sub _build_parsestamp {
