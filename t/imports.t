@@ -15,7 +15,12 @@ my @subs = (
   [parsegm    => ['2011-03-02T11:12:13Z']],
 );
 
-plan tests => scalar @subs;
+plan tests => 1 + scalar @subs;
+
+{
+  no strict 'refs';
+  is(eval { &{"${mod}::_undef_sub"}(); 1 }, undef, 'sanity check');
+}
 
 foreach my $sub ( @subs ){
   my ($name, $args) = @$sub;
