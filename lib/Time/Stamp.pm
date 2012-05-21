@@ -145,10 +145,13 @@ sub _build_parsestamp {
     return
       if !@time;
 
-    # no fraction in regexp
+    # regexp didn't have 7th capture group (for fraction)
     if( @time < 6 ){
       unshift @time, $frac;
-      undef $frac;
+      # if there was a fraction in group 6 separate it
+      # or timelocal may produce something unexpected.
+      # if there was no fraction $frac will be undef
+      ($time[0], $frac) = split(/\./, $time[0]);
     }
 
     # coerce strings into numbers (map { int } would not work for fractions)
@@ -495,8 +498,15 @@ year, month, day, hour, minute, second.
 If you're doing something more complex you probably ought to be using
 one of the modules listed in L<SEE ALSO>.
 
-An optional 7th group can be used to capture the fraction of the seconds
-(which will be appended to the result).
+An optional 7th group can be used to capture the fractional seconds.
+If only 6 groups are used, the 6th capture (seconds)
+will be checked for a fraction.
+The fraction will be separated from the whole number
+before being passed through the L<Time::Local> functions
+then appended to the result
+(the number returned in scalar context,
+or to the first element returned in list context)
+in an attempt to provide the most expected/reliable result.
 
 =head2 parsegm
 
