@@ -22,7 +22,18 @@ use Sub::Exporter 0.982 -setup => {
 };
 
 sub import {
-  @_ = map { /(local|gm)(?:stamp)?-(\w+)/ ? ($1.'stamp' => { format => $2 }) : $_ } @_;
+  @_ = map {
+    /(local|gm)(?:stamp)?((?:-\w+)+)/
+    ? ($1.'stamp' => {
+        map  {
+          /^([um]s)$/ ? ($1 => 1)
+            : (format => $_)
+        }
+        grep { $_ }
+          split(/-/, $2)
+      })
+    : $_
+  } @_;
   goto &do_import;
 }
 
@@ -263,14 +274,20 @@ my ( $file, $pattern, $stamp, $time );
 
   use Time::Stamp -parsers => { regexp => qr/$pattern/ };
 
+
   # the default configurations of each function
   # are available without importing into your namespace
 
   $stamp = Time::Stamp::gmstamp($time);
   $time  = Time::Stamp::parsegm($stamp);
 
+
   # use shortcuts for specifying desired format, useful for one-liners:
   qx/perl -MTime::Stamp=local-compact -E 'say localstamp'/;
+  # with milliseconds:
+  qx/perl -MTime::Stamp=local-compact-ms -E 'say localstamp'/;
+  # with microseconds:
+  qx/perl -MTime::Stamp=local-compact-us -E 'say localstamp'/;
 
 =head1 DESCRIPTION
 
@@ -547,6 +564,12 @@ Rather than:
 
 Any of the predefined formats named in L</FORMAT>
 can be used in the shortcut notation.
+
+Additionally recognized flags include:
+
+=for :list
+* C<us> adds microseconds (6 digit precision): C<< local-easy-us >>
+* C<ms> adds milliseconds (3 digit precision): C<< gm-ms >>
 
 =head1 SEE ALSO
 

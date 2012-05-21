@@ -158,6 +158,20 @@ is_deeply
 like(RanOutOfStooges::gmstamp,    qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} Z$/,  'gm-easy shortcut');
 like(RanOutOfStooges::localstamp, qr/^\d{4} \d{2} \d{2} _ \d{2} \d{2} \d{2}$/x, 'local-compact shortcut');
 
+{ package # shh...
+  NeedMoreStooges; use Time::Stamp qw( local-numeric-us gm-ms-compact );
+}
+
+like(NeedMoreStooges::gmstamp,    qr/^\d{4} \d{2} \d{2} _ \d{2} \d{2} \d{2} \.\d{3} Z$/x,  'gm-ms-compact shortcut');
+like(NeedMoreStooges::localstamp, qr/^\d{4} \d{2} \d{2}   \d{2} \d{2} \d{2} \.\d{6}$/x, 'local-numeric-us shortcut');
+
+{ package # shh...
+  StillMoreStooges; use Time::Stamp qw( local-ms gm-us );
+}
+
+like(StillMoreStooges::gmstamp,    qr/^\d{4}-\d{2}-\d{2} T \d{2}:\d{2}:\d{2} \.\d{6} Z$/x,  'gm-us shortcut');
+like(StillMoreStooges::localstamp, qr/^\d{4}-\d{2}-\d{2} T \d{2}:\d{2}:\d{2} \.\d{3}$/x, 'local-ms shortcut');
+
 # collector
 # TODO
 
