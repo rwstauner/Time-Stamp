@@ -75,9 +75,12 @@ sub _build_gmstamp {
   return _generate_code(gm => $arg);
 }
 
+# TODO: could these subs be faster with a no_args option? would only save 2 if's
 sub _generate_code {
   my ($which, $arg) = @_;
   $arg = { %$arg };
+  # note: mu is 03BC
+  $arg->{frac} ||= $arg->{us} ? 6 : $arg->{ms} ? 3 : 0;
 
   my $format = _format($arg);
 
@@ -85,7 +88,26 @@ sub _generate_code {
   my $vars = {
     which => $which,
   };
-  {
+  if( $arg->{frac} ){
+    $vars->{frac} = $arg->{frac};
+    # always display a fraction if requested
+    $vars->{gettime} = _have_hires()
+      ? 'Time::HiRes::gettimeofday()'
+      # if HiRes fails to load use whole number precision
+      : '(CORE::time(), 0)';
+    $code = <<'CODE';
+      sub {
+        # localtime() will not preserve the fraction, so separate it
+        my ($t, $f) = @_ ? (split(/\./, $_[0]), 0) : {{gettime}};
+        my @lt = _ymdhms(@_ > 1 ? @_ : CORE::{{which}}time($t));
+
+        # use %.6f for precision, but strip leading zero
+        return sprintf($format, @lt, substr(sprintf('%.{{frac}}f', '.'.$f), 1));
+      };
+CODE
+  }
+  # if not using fraction return a more efficient sub
+  else {
     $code = <<'CODE';
       sub {
         return sprintf($format,
@@ -145,10 +167,13 @@ sub _format {
 
   # TODO: $opt{tz} = tz_offset() if $opt{guess_tz};
 
+  # sadly "%02.6f" does not zero-pad the integer portion, so we have to be trickier
+
   return
     join($opt{date_sep}, qw(%04d %02d %02d)) .
     $opt{dt_sep} .
     join($opt{time_sep}, qw(%02d %02d %02d)) .
+    ($opt{frac} ? '%s' : '') .
     ($opt{tz} ? $opt{tz_sep} . $opt{tz} : '')
   ;
 }
@@ -156,6 +181,18 @@ sub _format {
 # convert *time() arrays to something ready to send to sprintf
 sub _ymdhms {
   return ($_[5] + 1900, $_[4] + 1, @_[3, 2, 1, 0]);
+}
+
+my $_have_hires;
+sub _have_hires {
+  if( !defined($_have_hires) ){
+    local $@;
+    $_have_hires = eval { require Time::HiRes; 1 } || do {
+      warn "Time::HiRes requested but failed to load: $@";
+      0;
+    };
+  }
+  return $_have_hires;
 }
 
 # define default localstamp and gmstamp in this package
@@ -177,15 +214,20 @@ my ( $file, $pattern, $stamp, $time );
 
 =head1 SYNOPSIS
 
-  # import customized functions to make simple, readable timestamps
+  # import customized functions to make easy-to-use timestamps
 
   use Time::Stamp 'gmstamp';
   my $now = gmstamp();
   my $mtime = gmstamp( (stat($file))[9] );
+    # $mtime is something like "2012-05-18T10:52:32Z"
+
 
   use Time::Stamp localstamp => { -as => 'ltime', format => 'compact' };
+    # ltime() will return something like "20120518_105232"
 
-  use Time::Stamp -stamps => { dt_sep => ' ', date_sep => '/' };
+  use Time::Stamp -stamps => { dt_sep => ' ', date_sep => '/', us => 1 };
+    # localstamp() will return something like "2012/05/18 10:52:32.123456"
+
 
   # inverse functions to parse the stamps
 
@@ -208,7 +250,7 @@ my ( $file, $pattern, $stamp, $time );
 =head1 DESCRIPTION
 
 This module makes it easy to include timestamp functions
-that are simple, easily readable, and fast.
+that are simple, easily readable, easily parseable, and fast.
 For simple timestamps perl's built-in functions are all you need:
 L<time|perlfunc/time>,
 L<gmtime|perlfunc/gmtime> (or L<localtime|perlfunc/localtime>),
@@ -262,6 +304,9 @@ The other characters of the stamp are configurable:
 * C<time_sep> - Character separating time components; Default: C<':'>
 * C<tz_sep>   - Character separating time and timezone; Default: C<''>
 * C<tz> - Time zone designator;  Default: C<''>
+* C<frac> - Digits of fractional seconds to show; Default: no fraction
+* C<ms> - Boolean shortcut: milliseconds; If true, same as C<< frac => 3 >>
+* C<us> - Boolean shortcut: microseconds; If true, same as C<< frac => 6 >>
 
 The following formats are predefined:
 
@@ -336,18 +381,27 @@ Each timestamp function will return a string according to the time as follows:
 
 =begin :list
 
-* If called with no arguments C<time()> (I<now>) will be used.
+* If called with no arguments C<time()> (I<now>) will be used
+(or L<Time::HiRes/gettimeofday> for fractional seconds).
 
 =item *
 
 A single argument should be an integer
 (like that returned from C<time()> or C<stat()>).
 
+If a floating point number is provided
+(and fractional seconds were part of the format)
+the fraction will be preserved (according to the specified precision).
+
 =item *
 
 More than one argument is assumed to be the list returned from
 C<gmtime()> or C<localtime()> which can be useful if you previously called
 the function and don't want to do it again.
+
+If the first argument (seconds) is a floating point number
+(and fractional seconds were part of the format)
+the fraction will be preserved (according to the specified precision).
 
 =end :list
 
@@ -486,8 +540,6 @@ Allow an option for overwriting the globals
 so that calling C<localtime> in scalar context will return
 a stamp in the desired format.
 The normal values will be returned in list context.
-
-* Include the fractional portion of the seconds if present?
 
 =end :list
 

@@ -9,19 +9,23 @@ use Time::Local (); # core
 
 # defaults
 { package # shh...
-  Moe; use Time::Stamp qw(gmstamp localstamp);
+  Moe; use Time::Stamp qw(gmstamp localstamp),
+    localstamp => { -as => 'localfrac', us => 1 };
 }
 
 like(Moe::gmstamp,    qr/^ \d{4} - \d{2} - \d{2} T \d{2} : \d{2} : \d{2} Z$/x, 'default gmstamp');
 like(Moe::localstamp, qr/^ \d{4} - \d{2} - \d{2} T \d{2} : \d{2} : \d{2}  $/x,  'default localstamp');
+like(Moe::localfrac,  qr/^ \d{4} - \d{2} - \d{2} T \d{2} : \d{2} : \d{2} \. \d{6}$/x,  'default with us');
 
 # separators
 { package # shh...
   Larry; use Time::Stamp
     gmstamp    => {date_sep => '/', dt_sep => '_', tz_sep => '@'},
+    gmstamp    => {date_sep => '/', dt_sep => '_', tz_sep => '@', frac => 2, -as => 'gmfrac2'},
     localstamp => {time_sep => '.', tz_sep => '@'};
 }
 
+like(Larry::gmfrac2,    qr#^ \d{4} / \d{2} / \d{2} _ \d{2}  : \d{2}  : \d{2} \. \d{2} @ Z$ #x, 'gmstamp with hundredths');
 like(Larry::gmstamp,    qr#^ \d{4} / \d{2} / \d{2} _ \d{2}  : \d{2}  : \d{2} @ Z$ #x, 'gmstamp');
 like(Larry::localstamp, qr#^ \d{4} - \d{2} - \d{2} T \d{2} \. \d{2} \. \d{2}    $ #x, 'localstamp');
 
@@ -55,11 +59,15 @@ like(Curly::localiso8601, qr/^\d{4} - \d{2} - \d{2} T \d{2} : \d{2} : \d{2}$/x, 
 { package # shh...
   Shemp; use Time::Stamp
     gmstamp    => {format => 'compact', dt_sep => '||', tz_sep => '-'},
+    gmstamp    => {format => 'compact', dt_sep => '||', tz_sep => '-', frac => 4, -as => 'gmfrac4'},
+    localstamp => {tz => '0000', tz_sep => '.', format => 'numeric',   frac => 5, -as => 'localfrac5'},
     localstamp => {tz => '0000', tz_sep => '.', format => 'numeric'};
 }
 
+like(Shemp::gmfrac4,    qr/^\d{4} \d{2} \d{2} \|\| \d{2} \d{2} \d{2} \.\d{4} -Z$/x, 'gmstamp compact override with frac');
 like(Shemp::gmstamp,    qr/^\d{4} \d{2} \d{2} \|\| \d{2} \d{2} \d{2} -Z$/x, 'gmstamp compact override');
 like(Shemp::localstamp, qr/^\d{4} \d{2} \d{2}      \d{2} \d{2} \d{2} \. 0000$/x, 'localstamp numeric override');
+like(Shemp::localfrac5, qr/^\d{4} \d{2} \d{2}      \d{2} \d{2} \d{2} \. \d{5} \. 0000$/x, 'localstamp numeric override with frac');
 
 # group
 { package # shh...
@@ -68,6 +76,14 @@ like(Shemp::localstamp, qr/^\d{4} \d{2} \d{2}      \d{2} \d{2} \d{2} \. 0000$/x,
 
 like(Joe::gmstamp,    qr/^\d{4} \d{2} \d{2} _ \d{2} \d{2} \d{2} Z$/x, 'gmstamp compact');
 like(Joe::localstamp, qr/^\d{4} \d{2} \d{2} _ \d{2} \d{2} \d{2}$/x, 'localstamp compact');
+
+# group with fraction
+{ package # shh...
+  JoeFrac; use Time::Stamp -stamps => {format => 'compact', frac => 9};
+}
+
+like(JoeFrac::gmstamp,    qr/^\d{4} \d{2} \d{2} _ \d{2} \d{2} \d{2} \.\d{9} Z$/x,    'gmstamp compact with fraction');
+like(JoeFrac::localstamp, qr/^\d{4} \d{2} \d{2} _ \d{2} \d{2} \d{2} \.\d{9}  $/x, 'localstamp compact with fraction');
 
 # parsers
 { package # shh...
