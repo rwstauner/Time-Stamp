@@ -3,6 +3,8 @@ use strict;
 use warnings;
 use Test::More 0.96;
 use Time::Local () ; # core
+use lib 't/lib';
+use ControlTime;
 
 # this script is just to ensure that some actual values can be tested
 # without requiring time mocking mods to be installed
@@ -11,11 +13,9 @@ our $_timegm    = Time::Local::timegm(   5,10,18,16,2,111);
 our $_timelocal = Time::Local::timelocal(5,10,18,16,2,111);
 our $_time      = $_timegm;
 
-BEGIN {
-  *CORE::GLOBAL::time = sub () { $_time };
-  $INC{"Time/HiRes.pm"} = 1;
-  *Time::HiRes::gettimeofday = sub () { $_time, 234567 };
-}
+BEGIN { ControlTime->mock_time_hires }
+
+ControlTime->set($_time, 234567);
 
 is(time(), $_time, 'global time() overridden');
 is(join('.', Time::HiRes::gettimeofday()), "$_time.234567", 'hires time overridden');
@@ -49,12 +49,13 @@ foreach my $test (
   my ($name, $stamp, $suffix) = (@$test, '');
   no strict 'refs';
 
-  $_time = $_timegm;
+  ControlTime->set($_timegm);
   is(&{"gm$name"}(),  $stamp, "gmstamp $name from time()");
   is(parsegm($stamp), $_timegm.$suffix, "parsegm reverts the stamp");
 
   $stamp =~ s/\D*Z$//;
-  $_time = $_timelocal;
+
+  ControlTime->set($_timelocal);
   is &{"local$name"}(), $stamp, 'localstamp from time()';
   is parselocal($stamp), $_timelocal.$suffix, 'parselocal reverts stamp';
 }
