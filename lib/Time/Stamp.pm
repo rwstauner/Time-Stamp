@@ -105,12 +105,14 @@ sub _generate_code {
     $vars->{gettime} = _have_hires()
       ? 'Time::HiRes::gettimeofday()'
       # if HiRes fails to load use whole number precision
-      : '(CORE::time(), 0)';
+      : '(time(), 0)';
+
     $code = <<'CODE';
       sub {
         # localtime() will not preserve the fraction, so separate it
         my ($t, $f) = @_ ? (split(/\./, $_[0]), 0) : {{gettime}};
-        my @lt = _ymdhms(@_ > 1 ? @_ : CORE::{{which}}time($t));
+
+        my @lt = _ymdhms(@_ > 1 ? @_ : {{which}}time($t));
 
         # use %.6f for precision, but strip leading zero
         return sprintf($format, @lt, substr(sprintf('%.{{frac}}f', '.'.$f), 1));
@@ -122,7 +124,7 @@ CODE
     $code = <<'CODE';
       sub {
         return sprintf($format,
-          _ymdhms(@_ > 1 ? @_ : CORE::{{which}}time(@_ ? $_[0] : time))
+          _ymdhms(@_ > 1 ? @_ : {{which}}time(@_ ? $_[0] : time))
         );
       };
 CODE

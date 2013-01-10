@@ -2,6 +2,9 @@ Revision history for Time-Stamp
 
 {{$NEXT}}
 
+  - Drop the 'CORE::' prefix from calls to built-ins
+    so that time() can be overridden (mocked in tests, etc).
+
 1.200     2012-05-21T18:02:33Z
 
   - Enable fractional seconds in timestamps
