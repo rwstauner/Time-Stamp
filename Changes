@@ -2,6 +2,8 @@ Revision history for Time-Stamp
 
 {{$NEXT}}
 
+1.300     2013-01-10T03:34:01Z
+
   [Bug Fixes]
   - Preserve leading zeros in fractions when microseconds
     are less_than 100_000.

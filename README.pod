@@ -1,8 +1,10 @@
+=pod
+
+=encoding utf-8
+
 =for :stopwords Randy Stauner ACKNOWLEDGEMENTS TODO timestamp gmstamp localstamp UTC
 parsegm parselocal 6th 7th cpan testmatrix url annocpan anno bugtracker rt
 cpants kwalitee diff irc mailto metadata placeholders metacpan
-
-=encoding utf-8
 
 =head1 NAME
 
@@ -10,7 +12,7 @@ Time::Stamp - Easy, readable, efficient timestamp functions
 
 =head1 VERSION
 
-version 1.200
+version 1.300
 
 =head1 SYNOPSIS
 
@@ -229,6 +231,15 @@ A single argument should be an integer
 If a floating point number is provided
 (and fractional seconds were part of the format)
 the fraction will be preserved (according to the specified precision).
+
+B<Note>: You may want to stringify a floating point number yourself
+in order to control the precision rather than be subject
+to the rounding of the default stringification:
+
+  localstamp(sprintf "%.6f", $timestamp)
+
+See "NOTE 2" in the description of C<time()> in L<Time::HiRes>
+for more information.
 
 =item *
 
