@@ -439,6 +439,15 @@ If a floating point number is provided
 (and fractional seconds were part of the format)
 the fraction will be preserved (according to the specified precision).
 
+B<Note>: You may want to stringify a floating point number yourself
+in order to control the precision rather than be subject
+to the rounding of the default stringification:
+
+  localstamp(sprintf "%.6f", $timestamp)
+
+See "NOTE 2" in the description of C<time()> in L<Time::HiRes>
+for more information.
+
 =item *
 
 More than one argument is assumed to be the list returned from
