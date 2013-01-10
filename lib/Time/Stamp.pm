@@ -103,7 +103,9 @@ sub _generate_code {
     $vars->{frac} = $arg->{frac};
     # always display a fraction if requested
     $vars->{gettime} = _have_hires()
-      ? 'Time::HiRes::gettimeofday()'
+      # gettimeofday() returns microseconds, so we need six digits to stringify
+      # which means we need a sprintf somewhere
+      ? 'do { my @t = Time::HiRes::gettimeofday(); $t[1] = sprintf "%06d", $t[1]; @t }'
       # if HiRes fails to load use whole number precision
       : '(time(), 0)';
 

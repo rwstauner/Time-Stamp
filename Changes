@@ -2,6 +2,10 @@ Revision history for Time-Stamp
 
 {{$NEXT}}
 
+  [Bug Fixes]
+  - Preserve leading zeros in fractions when microseconds
+    are less_than 100_000.
+
   - Drop the 'CORE::' prefix from calls to built-ins
     so that time() can be overridden (mocked in tests, etc).
 
